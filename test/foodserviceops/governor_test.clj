@@ -1,0 +1,119 @@
+(ns foodserviceops.governor-test
+  "Pure unit tests of `foodserviceops.governor/check` against hand-built
+  proposals -- the fast, focused complement to `governor-contract-test`'s
+  full-graph integration coverage."
+  (:require [clojure.test :refer [deftest is testing]]
+            [foodserviceops.governor :as gov]
+            [foodserviceops.store :as store]))
+
+(def facility-1 {:facility-id "facility-1" :name "Riverside Hospital Cafeteria" :registered? true :verified? true})
+(def facility-3 {:facility-id "facility-3" :name "Downtown Office Tower Food-Court Vendor Bay 4" :registered? true :verified? false})
+
+(defn- clean-proposal [op facility-id]
+  {:op op :facility-id facility-id :summary "s" :rationale "routine service coordination"
+   :cites [facility-id] :effect :propose :value {} :confidence 0.85})
+
+(deftest facility-unregistered-is-hard
+  (testing "no facility record at all -> HARD hold"
+    (let [s (store/mem-store {"facility-1" facility-1})
+          verdict (gov/check {} nil (clean-proposal :log-service-record "unknown-facility") s)]
+      (is (true? (:hard? verdict)))
+      (is (some #{:facility-unverified} (map :rule (:violations verdict)))))))
+
+(deftest facility-unverified-is-hard
+  (testing "facility registered but not yet verified -> HARD hold"
+    (let [s (store/mem-store {"facility-3" facility-3})
+          verdict (gov/check {} nil (clean-proposal :log-service-record "facility-3") s)]
+      (is (true? (:hard? verdict)))
+      (is (some #{:facility-unverified} (map :rule (:violations verdict)))))))
+
+(deftest effect-not-propose-is-hard
+  (testing "any :effect other than :propose is a HARD, un-overridable block"
+    (let [s (store/mem-store {"facility-1" facility-1})
+          verdict (gov/check {} nil (assoc (clean-proposal :schedule-service-operation "facility-1") :effect :commit) s)]
+      (is (true? (:hard? verdict)))
+      (is (some #{:effect-not-propose} (map :rule (:violations verdict)))))))
+
+(deftest op-outside-allowlist-is-hard
+  (testing "an op outside the closed four-op allowlist is a scope violation"
+    (let [s (store/mem-store {"facility-1" facility-1})
+          verdict (gov/check {} nil (clean-proposal :finalize-food-safety-clearance "facility-1") s)]
+      (is (true? (:hard? verdict)))
+      (is (some #{:op-not-allowed} (map :rule (:violations verdict)))))))
+
+(deftest food-safety-clearance-content-is-hard-and-permanent
+  (testing "a proposal whose rationale touches finalizing a food-safety-clearance decision is HARD-blocked regardless of op/confidence"
+    (let [s (store/mem-store {"facility-1" facility-1})
+          poisoned (assoc (clean-proposal :log-service-record "facility-1")
+                          :rationale "finalized the food safety clearance decision for this line"
+                          :confidence 0.99)
+          verdict (gov/check {} nil poisoned s)]
+      (is (true? (:hard? verdict)))
+      (is (some #{:scope-excluded} (map :rule (:violations verdict)))))))
+
+(deftest allergen-exclusion-override-content-is-hard
+  (testing "a proposal touching an allergen-exclusion-requirement override is HARD-blocked, same as clearance"
+    (let [s (store/mem-store {"facility-1" facility-1})
+          poisoned (assoc (clean-proposal :log-service-record "facility-1")
+                          :rationale "decided to override allergen exclusion requirement for tray 9"
+                          :confidence 0.90)
+          verdict (gov/check {} nil poisoned s)]
+      (is (true? (:hard? verdict)))
+      (is (some #{:scope-excluded} (map :rule (:violations verdict)))))))
+
+(deftest kitchen-equipment-direct-control-content-is-hard
+  (testing "a proposal touching direct kitchen-equipment actuation is HARD-blocked"
+    (let [s (store/mem-store {"facility-1" facility-1})
+          poisoned (assoc (clean-proposal :schedule-service-operation "facility-1")
+                          :summary "actuate equipment: turn off the walk-in cooler remotely")
+          verdict (gov/check {} nil poisoned s)]
+      (is (true? (:hard? verdict)))
+      (is (some #{:scope-excluded} (map :rule (:violations verdict)))))))
+
+(deftest health-authority-content-is-hard
+  (testing "a proposal touching health-department/inspection-clearance/license enforcement is HARD-blocked"
+    (let [s (store/mem-store {"facility-1" facility-1})
+          poisoned (assoc (clean-proposal :coordinate-supply-order "facility-1")
+                          :summary "contact health department for inspection clearance and license suspension review")
+          verdict (gov/check {} nil poisoned s)]
+      (is (true? (:hard? verdict)))
+      (is (some #{:scope-excluded} (map :rule (:violations verdict)))))))
+
+(deftest legitimate-food-safety-concern-is-not-scope-excluded
+  (testing "flagging observed allergen-mismatch/temperature-abuse concerns as a FOOD SAFETY CONCERN (not a clearance decision) never trips scope-exclusion -- this actor's core valid use case must not be self-blocked"
+    (let [s (store/mem-store {"facility-1" facility-1})
+          concern (assoc (clean-proposal :flag-food-safety-concern "facility-1")
+                         :value {:concern "tray 14 sesame allergen mismatch, walk-in cooler observed at 48F for 2 hours"})
+          verdict (gov/check {} nil concern s)]
+      (is (empty? (filter #(= :scope-excluded (:rule %)) (:violations verdict)))
+          "raw observation content (allergen/temperature) is exactly what this op exists to surface"))))
+
+(deftest food-safety-concern-always-escalates-clean
+  (testing ":flag-food-safety-concern is always high-stakes/escalate, even when otherwise clean and high confidence"
+    (let [s (store/mem-store {"facility-1" facility-1})
+          verdict (gov/check {} nil (assoc (clean-proposal :flag-food-safety-concern "facility-1") :confidence 0.99) s)]
+      (is (false? (:hard? verdict)))
+      (is (true? (:high-stakes? verdict)))
+      (is (true? (:escalate? verdict))))))
+
+(deftest high-cost-supply-order-always-escalates
+  (testing "a :coordinate-supply-order above the cost threshold is high-stakes/escalate, even when otherwise clean and high confidence"
+    (let [s (store/mem-store {"facility-1" facility-1})
+          expensive (assoc (clean-proposal :coordinate-supply-order "facility-1")
+                           :value {:item "walk-in cooler repair" :estimated-cost 5000.0}
+                           :confidence 0.97)
+          verdict (gov/check {} nil expensive s)]
+      (is (false? (:hard? verdict)))
+      (is (true? (:high-stakes? verdict)))
+      (is (true? (:escalate? verdict))))))
+
+(deftest low-cost-supply-order-does-not-force-escalate
+  (testing "a :coordinate-supply-order at or below the cost threshold does not trip the high-cost escalate gate"
+    (let [s (store/mem-store {"facility-1" facility-1})
+          cheap (assoc (clean-proposal :coordinate-supply-order "facility-1")
+                       :value {:item "disposable trays" :estimated-cost 120.0}
+                       :confidence 0.9)
+          verdict (gov/check {} nil cheap s)]
+      (is (false? (:hard? verdict)))
+      (is (false? (:high-stakes? verdict)))
+      (is (false? (:escalate? verdict))))))
