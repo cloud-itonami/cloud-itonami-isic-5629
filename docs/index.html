@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Other Food Service Activities | cloud-itonami-isic-5629</title>
+  <meta name="description" content="Other Food Service Activities — governed open occupation blueprint (ISIC 5629).">
+  <style>
+    :root { --bg:#f5f7fa; --card:#fff; --fg:#1b1f24; --muted:#57606a; --accent:#1e3a8a; --line:#d0d7de; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg:#0d1117; --card:#161b22; --fg:#e6edf3; --muted:#8d96a0; --accent:#58a6ff; --line:#30363d; }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, var(--bg), #c3cfe2);
+           min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; color: var(--fg); }
+    .container { max-width: 800px; width: 100%; background: var(--card); border-radius: 12px;
+                 box-shadow: 0 10px 40px rgba(0,0,0,.1); padding: 48px 40px; border: 1px solid var(--line); }
+    h1 { font-size: 1.85rem; color: var(--accent); margin-bottom: 8px; }
+    .badge { display: inline-block; background: #e0e7ff; color: var(--accent); padding: 3px 10px;
+             border-radius: 4px; font-size: .85rem; font-weight: 600; margin-bottom: 20px; }
+    @media (prefers-color-scheme: dark) { .badge { background: #1f2a44; } }
+    .pitch { border-left: 4px solid var(--accent); padding-left: 16px; margin: 20px 0 28px; color: var(--muted); line-height: 1.7; }
+    .pitch p { margin-bottom: 10px; }
+    .meta { font-size: .9rem; color: var(--muted); margin-bottom: 24px; }
+    .meta code { background: var(--bg); padding: 1px 6px; border-radius: 4px; }
+    .cta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+    @media (max-width: 560px) { .cta { grid-template-columns: 1fr; } }
+    .cta a { display: block; text-align: center; text-decoration: none; padding: 14px 18px;
+             border-radius: 8px; font-weight: 600; }
+    .cta .primary { background: var(--accent); color: #fff; }
+    .cta .secondary { border: 1.5px solid var(--accent); color: var(--accent); }
+    ul.links { list-style: none; font-size: .95rem; }
+    ul.links li { margin: 8px 0; }
+    a { color: var(--accent); }
+    footer { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line);
+             font-size: .85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Other Food Service Activities</h1>
+    <div class="badge">ISIC 5629 · maturity implemented</div>
+    <div class="pitch">
+      <p>Other food service activities — ISIC Rev.4 class 5629.</p>
+      <p>A coordination-only actor for institutional / contract food-service sites — hospital cafeterias, school and workplace canteens, food-court vendor bays operating under institutional contracts, and other food service not classified elsewhere (residual category: distinct from stand-alone restaurants and mobile food service, ISIC 5610, and from stand-alone event catering, ISIC 5621) — behind an independent Governor that earns advisor trust through structured oversight: proposal → advise → govern → decide → commit|hold|escalate.</p>
+      <p>- Closed proposal-op allowlist: log-service-record, schedule-service-operation, coordinate-supply-order, flag-food-safety-concern (all :effect :propose). - Three HARD governor checks (permanent, un-overridable):   1. Facility unverified — the target facility's service-contract record must exist AND be independently registered/verified in the store.   2. Effect is :propose — any other :effect value is rejected.   3. Scope exclusion — finalizing a food-safety-clearance decision, overriding an allergen-exclusion requirement, direct kitchen-equipment actuation, and food-safety-authority enforcement (health-department clearance, inspection sign-off, license/permit actions) are permanently blocked. - Two ESCALATE (SOFT) gates, either forces human sign-off:   - :flag-food-safety-concern — ALWAYS escalates, regardless of confidence or phase. A &quot;flag a concern&quot; op is never auto-commit-eligible and never finalizes a food-safety-authority decision itself — it only surfaces the concern for a human.   - :coordinate-supply-order above a cost threshold — a large-value procurement proposal always needs a human sign-off.   - (LLM confidence below the floor also escalates, as with every sibling actor.) - Staged rollout (Phase 0→3):   - Phase 0: read-only   - Phase 1: service-record logging only (approval-gated)   - Phase 2: + service-operation scheduling, supply-order proposals (approval-gated)   - Phase 3: auto-commits clean, high-confidence, low-cost proposals (food-safety concerns and high-cost supply orders always escalate) - Append-only audit ledger — every decision is an immutable log entry. - langgraph-clj StateGraph — one request = one supervised run; human-in-the-loop via interrupt-before.</p>
+    </div>
+    <p class="meta">Domain <code>services/institutional-food-service</code> · Governor <code>foodservice-governor</code> · License <code>AGPL-3.0-or-later</code></p>
+    <div class="cta">
+      <a class="primary" href="https://itonami.cloud/isco-1212/">Fork + self-host claim</a>
+      <a class="secondary" href="https://itonami.cloud/docs/go-live.md">Paid go-live path</a>
+    </div>
+    <ul class="links">
+      <li><a href="https://github.com/cloud-itonami/cloud-itonami-isic-5629">GitHub repository</a></li>
+      <li><a href="./operator-quickstart.md">Operator quickstart</a></li>
+      <li><a href="https://github.com/cloud-itonami/cloud-itonami-isic-5629/blob/main/blueprint.edn">blueprint.edn</a></li>
+      <li><a href="https://github.com/cloud-itonami/cloud-itonami-isic-5629/blob/main/README.md">README</a></li>
+    </ul>
+    <footer>
+      <p>Open occupation blueprint — no invented usage or revenue metrics. Product face generated for impl-product maturity (Lane C).</p>
+    </footer>
+  </main>
+</body>
+</html>
