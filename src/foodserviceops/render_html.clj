@@ -249,7 +249,12 @@
 
 (defn- code [v] (str "<code>" (esc v) "</code>"))
 
-(defn- n-cell [v] (str "<span class=\"num\">" (esc v) "</span>"))
+(defn- n-cell
+  "A numeric cell. ESCAPES its argument, so it must only ever be given a
+  plain value -- never pre-built markup, which would be double-escaped
+  and rendered to the reader as literal `&lt;code&gt;` text."
+  [v]
+  (str "<span class=\"num\">" (esc v) "</span>"))
 
 (defn- dash [] "<span class=\"muted\">&mdash;</span>")
 
@@ -424,8 +429,11 @@
            (n-cell (get by :rejected 0)))
       (row "<span class=\"critical\">HARD governor holds (never reach a human)</span>"
            (n-cell (count hs)))
+      ;; the rule names are already markup (`<code>`), so they are placed
+      ;; NEXT TO the numeric cell rather than inside it -- `n-cell` escapes.
       (row "distinct HARD governor rules exercised"
-           (n-cell (str (count rules) " &nbsp; " (str/join ", " (map (comp code kw-str) rules)))))
+           (str (n-cell (count rules)) " &nbsp; "
+                (str/join ", " (map (comp code kw-str) rules))))
       (row "<span class=\"warn\">phase-gate holds (no governor violation)</span>"
            (n-cell (count (phase-holds db))))
       (row "committed records in the SSoT coordination log"
@@ -486,7 +494,11 @@
        (row (code (kw-str rule))
             (n-cell (count entries))
             (str/join " " (->> entries (map #(:facility-id (nth % 2))) distinct sort (map code)))
-            (esc (-> entries first second)))))))
+            ;; EVERY distinct detail the governor emitted for this rule, not
+            ;; just the first: these strings name the offending facility, so
+            ;; showing one while the column beside it lists several would
+            ;; describe a hold that is not the one being read.
+            (str/join "<br>" (->> entries (map second) distinct sort (map esc))))))))
 
 (defn- phase-gate-section []
   (let [ops (vec (sort-by kw-str governor/allowed-ops))
@@ -533,8 +545,8 @@
     (row "scope-exclusion terms scanned on every proposal"
          (n-cell (count governor/scope-excluded-terms)))
     (row "default rollout phase"
-         (n-cell (str phase/default-phase " &middot; "
-                      (esc (:label (get phase/phases phase/default-phase))))))]))
+         (str (n-cell phase/default-phase) " &middot; "
+              (esc (:label (get phase/phases phase/default-phase)))))]))
 
 (defn- ssot-section [db]
   (section

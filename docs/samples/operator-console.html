@@ -2481,7 +2481,7 @@ img,svg { max-width: 100%; height: auto; }</style></head><body>
         <tr><td><span class="ok">escalated &rarr; approved by a human</span></td><td><span class="num">3</span></td></tr>
         <tr><td><span class="critical">escalated &rarr; rejected by a human</span></td><td><span class="num">1</span></td></tr>
         <tr><td><span class="critical">HARD governor holds (never reach a human)</span></td><td><span class="num">5</span></td></tr>
-        <tr><td>distinct HARD governor rules exercised</td><td><span class="num">4 &amp;nbsp; &lt;code&gt;effect-not-propose&lt;/code&gt;, &lt;code&gt;facility-unverified&lt;/code&gt;, &lt;code&gt;op-not-allowed&lt;/code&gt;, &lt;code&gt;scope-excluded&lt;/code&gt;</span></td></tr>
+        <tr><td>distinct HARD governor rules exercised</td><td><span class="num">4</span> &nbsp; <code>effect-not-propose</code>, <code>facility-unverified</code>, <code>op-not-allowed</code>, <code>scope-excluded</code></td></tr>
         <tr><td><span class="warn">phase-gate holds (no governor violation)</span></td><td><span class="num">1</span></td></tr>
         <tr><td>committed records in the SSoT coordination log</td><td><span class="num">7</span></td></tr>
         <tr><td>immutable facts on the audit ledger</td><td><span class="num">14</span></td></tr>
@@ -2530,7 +2530,7 @@ img,svg { max-width: 100%; height: auto; }</style></head><body>
       <thead><tr><th>Rule</th><th>Times fired</th><th>Facilities held</th><th>Governor's own detail</th></tr></thead>
       <tbody>
         <tr><td><code>effect-not-propose</code></td><td><span class="num">1</span></td><td><code>facility-1</code></td><td>:effect は :propose のみ許可されるが :commit が提案された</td></tr>
-        <tr><td><code>facility-unverified</code></td><td><span class="num">2</span></td><td><code>facility-3</code> <code>facility-99</code></td><td>facility-99 は未登録または未検証の施設(サービス契約) -- いかなる提案も進められない</td></tr>
+        <tr><td><code>facility-unverified</code></td><td><span class="num">2</span></td><td><code>facility-3</code> <code>facility-99</code></td><td>facility-3 は未登録または未検証の施設(サービス契約) -- いかなる提案も進められない<br>facility-99 は未登録または未検証の施設(サービス契約) -- いかなる提案も進められない</td></tr>
         <tr><td><code>op-not-allowed</code></td><td><span class="num">1</span></td><td><code>facility-1</code></td><td>:approve-vendor-invoice は許可された操作(closed allowlist)に含まれない</td></tr>
         <tr><td><code>scope-excluded</code></td><td><span class="num">1</span></td><td><code>facility-1</code></td><td>食品安全認可の確定/アレルゲン除外要件の上書き/厨房設備の直接操作/食品安全当局の判断領域に触れる提案は永久に禁止</td></tr>
       </tbody>
@@ -2560,7 +2560,7 @@ img,svg { max-width: 100%; height: auto; }</style></head><body>
         <tr><td>closed op allowlist <code>allowed-ops</code></td><td><code>coordinate-supply-order</code> <code>flag-food-safety-concern</code> <code>log-service-record</code> <code>schedule-service-operation</code></td></tr>
         <tr><td>always escalates <code>always-escalate-ops</code></td><td><code>flag-food-safety-concern</code></td></tr>
         <tr><td>scope-exclusion terms scanned on every proposal</td><td><span class="num">43</span></td></tr>
-        <tr><td>default rollout phase</td><td><span class="num">3 &amp;middot; supervised-auto</span></td></tr>
+        <tr><td>default rollout phase</td><td><span class="num">3</span> &middot; supervised-auto</td></tr>
       </tbody>
     </table>
   </section>
