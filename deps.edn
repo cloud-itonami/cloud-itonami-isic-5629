@@ -1,6 +1,15 @@
 {:paths ["src"]
+ ;; `jp-go-digital-design-system` (DADS) is this workspace's BASE design
+ ;; system (CLAUDE.md "UI/UX 標準"). It is consumed as a :git/sha, NOT a
+ ;; :local/root, so this repo stays forkable outside the monorepo --
+ ;; `foodserviceops.render-html` inlines `jp-go-dds.skin/dds+skin` into the
+ ;; generated operator console at build time, so the sample page has no
+ ;; runtime asset dependency at all.
  :deps {io.github.kotoba-lang/langgraph
-        {:git/sha "a332a770a0d2b5193f81b54483bb954fb29ef8d7"}}
+        {:git/sha "a332a770a0d2b5193f81b54483bb954fb29ef8d7"}
+        io.github.kotoba-lang/jp-go-digital-design-system
+        {:git/url "https://github.com/kotoba-lang/jp-go-digital-design-system"
+         :git/sha "83db99546eabc53613ae826ea41d1533a3c574af"}}
  :aliases
  {:dev {:override-deps
         {io.github.kotoba-lang/langgraph
@@ -8,6 +17,11 @@
          io.github.kotoba-lang/langchain
          {:local/root "../../kotoba-lang/langchain"}}}
   :run {:main-opts ["-m" "foodserviceops.sim"]}
+  ;; clojure -M:dev:render-html [out-file] -> regenerate
+  ;; docs/samples/operator-console.html by actually running the actor
+  ;; (flagship checklist item 2, com-junkawasaki/root ADR-2607189300).
+  ;; -main THROWS unless the run produced real HARD governor holds.
+  :render-html {:main-opts ["-m" "foodserviceops.render-html"]}
   :test {:extra-paths ["test"]
          :extra-deps {io.github.cognitect-labs/test-runner
                       {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
