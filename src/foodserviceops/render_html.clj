@@ -83,7 +83,7 @@
   Usage: `clojure -M:dev:render-html [out-file]`
   (default `docs/samples/operator-console.html`)."
   (:require [jp-go-dds.skin]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [foodserviceops.store :as store]
             [foodserviceops.phase :as phase]
             [foodserviceops.governor :as governor]
@@ -385,7 +385,7 @@
   :on-ledger? :ledger-commit-carries?}`."
   [db runs]
   (let [records  (vec (store/coordination-log db))
-        approver? #(contains? approver-key-names (str/lower-case %))
+        approver? #(contains? approver-key-names (str/lower %))
         with-app (filterv #(some approver? (deep-key-names %)) records)
         ledger   (vec (store/ledger db))
         approvals (->> runs
