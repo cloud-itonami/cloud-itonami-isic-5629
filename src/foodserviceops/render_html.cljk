@@ -35,7 +35,7 @@
   ## Scenario
 
   Adapted from this repo's own `foodserviceops.sim` demo driver
-  (`clojure -M:dev:run`), which was run BEFORE this file was written and
+  (`kbb -M:dev:run`), which was run BEFORE this file was written and
   confirmed to produce a sensible ledger against the real seeded facility
   ids `facility-1`..`facility-3`.
 
@@ -80,7 +80,7 @@
   the output, so successive regenerations are byte-identical (verify by
   diffing two consecutive runs into scratch files).
 
-  Usage: `clojure -M:dev:render-html [out-file]`
+  Usage: `kbb -M:dev:render-html [out-file]`
   (default `docs/samples/operator-console.html`)."
   (:require [jp-go-dds.skin]
             [kotoba.lang.text :as str]
@@ -688,7 +688,7 @@
    "<p class=\"subtitle\">Institutional / contract food-service back-office coordination "
    "&mdash; hospital cafeterias, school canteens, food-court vendor bays. "
    "Generated at build time by <code>foodserviceops.render-html</code> "
-   "(<code>clojure -M:dev:render-html</code>) by actually running the compiled "
+   "(<code>kbb -M:dev:render-html</code>) by actually running the compiled "
    "<code>foodserviceops.operation</code> StateGraph over a freshly seeded store. "
    "Every value below was read back out of that run &mdash; there is no mock markup on this "
    "page, and no timestamp, so successive regenerations are byte-identical.</p>\n"
