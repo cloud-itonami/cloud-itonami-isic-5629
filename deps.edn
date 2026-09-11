@@ -22,7 +22,7 @@
          io.github.kotoba-lang/langchain
          {:local/root "../../kotoba-lang/langchain"}}}
   :run {:main-opts ["-m" "foodserviceops.sim"]}
-  ;; clojure -M:dev:render-html [out-file] -> regenerate
+  ;; kbb -M:dev:render-html [out-file] -> regenerate
   ;; docs/samples/operator-console.html by actually running the actor
   ;; (flagship checklist item 2, com-junkawasaki/root ADR-2607189300).
   ;; -main THROWS unless the run produced real HARD governor holds.
