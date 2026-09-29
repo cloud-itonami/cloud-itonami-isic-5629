@@ -1,6 +1,6 @@
 {:paths ["src"]
  ;; `jp-go-digital-design-system` (DADS) is this workspace's BASE design
- ;; system (CLAUDE.md "UI/UX 標準"). It is consumed as a :git/sha, NOT a
+ ;; system (AGENTS.md "UI/UX 標準"). It is consumed as a :git/sha, NOT a
  ;; :local/root, so this repo stays forkable outside the monorepo --
  ;; `foodserviceops.render-html` inlines `jp-go-dds.skin/dds+skin` into the
  ;; generated operator console at build time, so the sample page has no
